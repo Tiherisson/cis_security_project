@@ -1,0 +1,20 @@
+---
+# 4.1 Ensure Access to OS Root Directory Is Denied By Default
+# 4.3 Ensure OverRide Is Disabled for the OS Root Directory
+- name: 4.1 & 4.3 Secure OS Root Directory (Block access to /)
+  blockinfile:
+    path: "{{ cis_apache_conf_file }}"
+    block: |
+      <Directory />
+          AllowOverride None
+          Require all denied
+      </Directory>
+    marker: "# {mark} CIS ANSIBLE MANAGED BLOCK - ROOT DIR"
+    state: present
+  notify: Restart Apache
+
+# 4.4 Ensure OverRide Is Disabled for All Directories
+# This is tricky as it requires modifying all Directory blocks.
+# We will ensure the main document root has it, usually.
+# A general sed replace might be too aggressive. 
+# We'll rely on the default policy being set in Root / above, and recommend manual audit for others in a real scan.

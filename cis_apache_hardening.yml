@@ -1,0 +1,9 @@
+---
+- name: CIS Apache HTTP Server 2.4 Benchmark v2.3.0 Hardening
+  hosts: webservers
+  become: true
+  vars:
+    # Example override
+    # cis_apache_listen_ip: "10.0.0.5"
+  roles:
+    - cis_apache

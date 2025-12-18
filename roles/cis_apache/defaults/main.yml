@@ -1,0 +1,88 @@
+---
+# CIS Apache HTTP Server 2.4 Benchmark v2.3.0 Default Variables
+
+# --- Section 1: Planning and Installation ---
+cis_apache_install_packages: true
+
+# --- Section 2: Modules ---
+# 2.2 Ensure the Log Config Module Is Enabled
+cis_apache_enable_log_config: true
+# Modules to DISABLE
+cis_apache_disabled_modules:
+  - dave
+  - dav_fs
+  - dav_lock
+  - status
+  - autoindex
+  - proxy
+  - proxy_ajp
+  - proxy_balancer
+  - proxy_connect
+  - proxy_express
+  - proxy_fcgi
+  - proxy_fdpass
+  - proxy_ftp
+  - proxy_hcheck
+  - proxy_html
+  - proxy_http
+  - proxy_http2
+  - proxy_scgi
+  - proxy_wstunnel
+  - userdir
+  - info
+  - auth_basic
+  - auth_digest
+
+# --- Section 3: Principles, Permissions, and Ownership ---
+cis_apache_service_user: apache
+cis_apache_service_group: apache
+# Note: On Debian/Ubuntu this might be www-data. Can be overridden in inventory.
+
+# --- Section 4: Access Control ---
+cis_apache_deny_os_root_access: true
+cis_apache_allow_override_root_disabled: true
+cis_apache_allow_override_all_disabled: true
+
+# --- Section 5: Minimize Features, Content and Options ---
+cis_apache_disable_trace: true  # TraceEnable Off
+cis_apache_restricted_file_extensions:
+  - .ht*
+  - .git
+  - .svn
+cis_apache_listen_ip: "0.0.0.0" # Should be customized
+
+# --- Section 6: Operations - Logging ---
+cis_apache_log_level: notice
+cis_apache_enable_mod_security: true
+cis_apache_mod_security_crs_enabled: true
+
+# --- Section 7: SSL/TLS ---
+cis_apache_ssl_enabled: true
+cis_apache_disable_old_tls: true # Disable TLS 1.0/1.1
+cis_apache_ssl_honor_cipher_order: true
+cis_apache_ssl_compression: false
+cis_apache_hsts_enabled: true
+cis_apache_hsts_max_age: 15768000
+
+# --- Section 8: Information Leakage ---
+cis_apache_server_tokens: Prod
+cis_apache_server_signature: Off
+cis_apache_file_etag: None
+
+# --- Section 9: Denial of Service Mitigations ---
+cis_apache_timeout: 10
+cis_apache_keepalive: On
+cis_apache_max_keepalive_requests: 100
+cis_apache_keepalive_timeout: 15
+cis_apache_limit_request_header_timeout: 40 # RequestReadTimeout header=40-
+cis_apache_limit_request_body_timeout: 20   # RequestReadTimeout body=20
+
+# --- Section 10: Request Limits ---
+cis_apache_limit_request_line: 8190
+cis_apache_limit_request_fields: 100
+cis_apache_limit_request_field_size: 8190
+cis_apache_limit_request_body: 102400
+
+# --- Section 11/12 ---
+# SELinux/AppArmor handled via system roles generally, but we can verify booleans
+cis_apache_selinux_enforcing: true

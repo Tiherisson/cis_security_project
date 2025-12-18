@@ -1,0 +1,24 @@
+---
+# 8.1 Ensure ServerTokens is Set to 'Prod' or 'ProductOnly'
+- name: 8.1 Set ServerTokens Prod
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^ServerTokens\s+'
+    line: "ServerTokens {{ cis_apache_server_tokens }}"
+  notify: Restart Apache
+
+# 8.2 Ensure ServerSignature Is Not Enabled
+- name: 8.2 Set ServerSignature Off
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^ServerSignature\s+'
+    line: "ServerSignature {{ cis_apache_server_signature }}"
+  notify: Restart Apache
+
+# 8.4 Ensure ETag Response Header Fields Do Not Include Inodes
+- name: 8.4 Set FileETag
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^FileETag\s+'
+    line: "FileETag {{ cis_apache_file_etag }}"
+  notify: Restart Apache

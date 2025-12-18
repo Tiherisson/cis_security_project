@@ -1,0 +1,25 @@
+---
+- name: 1.3 Ensure Apache is installed
+  package:
+    name: "{{ cis_apache_service_name | default('httpd') }}"
+    state: present
+  when: cis_apache_install_packages | bool
+
+# Provide variable for service name based on OS if not defined
+- name: Set service name fact (RedHat)
+  set_fact:
+    cis_apache_service_name: httpd
+    cis_apache_user: apache
+    cis_apache_group: apache
+    cis_apache_conf_dir: /etc/httpd/conf
+    cis_apache_conf_file: /etc/httpd/conf/httpd.conf
+  when: ansible_os_family == 'RedHat'
+
+- name: Set service name fact (Debian)
+  set_fact:
+    cis_apache_service_name: apache2
+    cis_apache_user: www-data
+    cis_apache_group: www-data
+    cis_apache_conf_dir: /etc/apache2
+    cis_apache_conf_file: /etc/apache2/apache2.conf
+  when: ansible_os_family == 'Debian'

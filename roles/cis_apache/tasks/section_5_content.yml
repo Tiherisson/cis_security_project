@@ -1,0 +1,49 @@
+---
+# 5.1 - 5.3 Options (-Indexes -FollowSymLinks)
+# We apply this to the root directory or global config
+- name: 5.1 Disable Indexes and FollowSymLinks globally (if possible)
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^\s*Options\s+'
+    line: "Options -Indexes -FollowSymLinks"
+    state: present
+    # This might break things if not careful, but it's what CIS asks.
+
+# 5.4 Ensure Default HTML Content Is Removed
+- name: 5.4 Remove default HTML content (welcome.conf on RHEL)
+  file:
+    path: /etc/httpd/conf.d/welcome.conf
+    state: absent
+  when: ansible_os_family == 'RedHat'
+
+- name: 5.4 Remove default HTML content (index.html in default docroot)
+  file:
+    path: /var/www/html/index.html
+    state: absent
+
+# 5.5 - 5.6 Remove Default CGI Content
+- name: 5.5-5.6 Remove default CGI scripts (printenv, test-cgi)
+  file:
+    path: "/var/www/cgi-bin/{{ item }}"
+    state: absent
+  loop:
+    - printenv
+    - test-cgi
+
+# 5.8 Ensure the HTTP TRACE Method Is Disabled
+- name: 5.8 Disable HTTP TRACE
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^TraceEnable\s+'
+    line: "TraceEnable Off"
+  notify: Restart Apache
+
+# 5.15 Ensure the IP Addresses for Listening for Requests Are Specified
+# Replaces "Listen 80" with "Listen 0.0.0.0:80" or specific IP
+- name: 5.15 Set Listen IP
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^\s*Listen\s+(?:.*:)?80$'
+    line: "Listen {{ cis_apache_listen_ip }}:80"
+  when: cis_apache_listen_ip != "0.0.0.0" # Only apply if user changed default
+  notify: Restart Apache

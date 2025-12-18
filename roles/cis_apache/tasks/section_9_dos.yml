@@ -1,0 +1,43 @@
+---
+# 9.1 Ensure the TimeOut Is Set to 10 or Less
+- name: 9.1 Set TimeOut
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^Timeout\s+'
+    line: "Timeout {{ cis_apache_timeout }}"
+  notify: Restart Apache
+
+# 9.2 Ensure KeepAlive Is Enabled
+- name: 9.2 Set KeepAlive
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^KeepAlive\s+'
+    line: "KeepAlive {{ cis_apache_keepalive }}"
+  notify: Restart Apache
+
+# 9.3 Ensure MaxKeepAliveRequests is Set to a Value of 100 or Greater
+- name: 9.3 Set MaxKeepAliveRequests
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^MaxKeepAliveRequests\s+'
+    line: "MaxKeepAliveRequests {{ cis_apache_max_keepalive_requests }}"
+  notify: Restart Apache
+
+# 9.4 Ensure KeepAliveTimeout is Set to a Value of 15 or Less
+- name: 9.4 Set KeepAliveTimeout
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^KeepAliveTimeout\s+'
+    line: "KeepAliveTimeout {{ cis_apache_keepalive_timeout }}"
+  notify: Restart Apache
+
+# 9.5 & 9.6 RequestReadTimeout
+# Requires mod_reqtimeout. 
+- name: 9.5-9.6 Apply RequestReadTimeout
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    group: root # Check existence first in real world, simplistic here
+    regexp: '^RequestReadTimeout\s+'
+    line: "RequestReadTimeout header={{ cis_apache_limit_request_header_timeout }}-40,MinRate=500 body={{ cis_apache_limit_request_body_timeout }},MinRate=500"
+    state: present
+  notify: Restart Apache

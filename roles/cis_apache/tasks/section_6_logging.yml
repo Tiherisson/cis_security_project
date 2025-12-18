@@ -1,0 +1,29 @@
+---
+# 6.1 Ensure the Error Log Filename and Severity Level Are Configured Correctly
+- name: 6.1 Set LogLevel
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^LogLevel\s+'
+    line: "LogLevel {{ cis_apache_log_level }}"
+  notify: Restart Apache
+
+# 6.6 Ensure ModSecurity Is Installed and Enabled
+- name: 6.6 Install ModSecurity (RHEL)
+  package:
+    name: mod_security
+    state: present
+  when: ansible_os_family == 'RedHat' and cis_apache_enable_mod_security | bool
+
+- name: 6.6 Install ModSecurity (Debian)
+  package:
+    name: libapache2-mod-security2
+    state: present
+  when: ansible_os_family == 'Debian' and cis_apache_enable_mod_security | bool
+
+- name: 6.7 Ensure OWASP CRS is Installed (Generic - requires EPEL/backports usually)
+  package:
+    name: mod_security_crs
+    state: present
+  when: ansible_os_family == 'RedHat' and cis_apache_mod_security_crs_enabled | bool
+  ignore_errors: true # Standard repos might not have it smoothly without setup
+

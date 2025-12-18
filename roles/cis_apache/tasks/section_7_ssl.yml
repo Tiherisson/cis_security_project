@@ -1,0 +1,36 @@
+---
+# 7.1 Ensure mod_ssl and/or mod_nss Is Installed
+- name: 7.1 Install mod_ssl (RHEL)
+  package:
+    name: mod_ssl
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+# 7.4 Ensure TLSv1.0 and TLSv1.1 Protocols are Disabled
+# 7.5 Ensure Weak SSL/TLS Ciphers Are Disabled
+# This is usually done in /etc/httpd/conf.d/ssl.conf or mods-available/ssl.conf
+- name: 7.4-7.5 Configure SSL Protocol and Ciphers (Global SSL Config)
+  replace:
+    path: /etc/httpd/conf.d/ssl.conf
+    regexp: '^\s*SSLProtocol\s+.*'
+    replace: 'SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1'
+  when: ansible_os_family == 'RedHat' and cis_apache_disable_old_tls | bool
+  notify: Restart Apache
+
+- name: 7.5 Configure SSL Ciphers (Strong Ciphers)
+  replace:
+    path: /etc/httpd/conf.d/ssl.conf
+    regexp: '^\s*SSLCipherSuite\s+.*'
+    replace: 'SSLCipherSuite HIGH:!aNULL:!MD5:!3DES:!CAMELLIA:!AES128'
+  when: ansible_os_family == 'RedHat'
+  notify: Restart Apache
+
+# 7.11 Ensure HTTP Strict Transport Security Is Enabled
+- name: 7.11 Enable HSTS
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^Header always set Strict-Transport-Security'
+    line: 'Header always set Strict-Transport-Security "max-age={{ cis_apache_hsts_max_age }}; includeSubDomains"'
+    insertafter: '^<IfModule mod_headers.c>'
+  when: cis_apache_hsts_enabled | bool
+  notify: Restart Apache

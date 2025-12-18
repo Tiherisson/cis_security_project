@@ -1,0 +1,40 @@
+---
+# 2.2 Ensure the Log Config Module Is Enabled
+# Usually enabled by default. On Debian use apache2_module.
+- name: 2.2 Ensure log_config module is enabled (Debian)
+  apache2_module:
+    name: log_config
+    state: present
+  when: ansible_os_family == 'Debian' and cis_apache_enable_log_config | bool
+  notify: Restart Apache
+
+# 2.3 - 2.9 Disable Modules
+# Debian: Use apache2_module state=absent
+- name: Disable modules (Debian)
+  apache2_module:
+    name: "{{ item }}"
+    state: absent
+    ignore_configcheck: true
+    force: true
+  loop: "{{ cis_apache_disabled_modules }}"
+  when: ansible_os_family == 'Debian'
+  notify: Restart Apache
+  ignore_errors: true # Ignore if module already missing
+
+# RHEL: Modules are loaded in *.conf files in conf.modules.d
+# We iterate over the list and comment out LoadModule lines in the main config directory
+- name: Disable modules (RHEL) - Find config files
+  register: find_mod_conf
+  find:
+    paths: "/etc/httpd/conf.modules.d"
+    patterns: "*.conf"
+  when: ansible_os_family == 'RedHat'
+
+- name: Disable modules (RHEL) - Comment out LoadModule
+  replace:
+    path: "{{ item.1.path }}"
+    regexp: '^\s*LoadModule\s+{{ item.0 }}_module\s+(.*)'
+    replace: '#LoadModule {{ item.0 }}_module \1'
+  loop: "{{ cis_apache_disabled_modules | product(find_mod_conf.files | default([])) | list }}"
+  when: ansible_os_family == 'RedHat'
+  notify: Restart Apache

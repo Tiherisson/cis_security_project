@@ -1,0 +1,49 @@
+---
+# Main entry point for cis_apache role
+
+- name: Section 1 - Installation and Planning
+  import_tasks: section_1_installation.yml
+  tags: [section1, installation]
+
+- name: Section 2 - Modules
+  import_tasks: section_2_modules.yml
+  tags: [section2, modules]
+
+- name: Section 3 - Permissions and Ownership
+  import_tasks: section_3_permissions.yml
+  tags: [section3, permissions]
+
+- name: Section 4 - Access Control
+  import_tasks: section_4_access_control.yml
+  tags: [section4, access_control]
+
+- name: Section 5 - Minimize Features and Content
+  import_tasks: section_5_content.yml
+  tags: [section5, content]
+
+- name: Section 6 - Logging and Monitoring
+  import_tasks: section_6_logging.yml
+  tags: [section6, logging]
+
+- name: Section 7 - SSL/TLS Configuration
+  import_tasks: section_7_ssl.yml
+  tags: [section7, ssl]
+
+- name: Section 8 - Information Leakage
+  import_tasks: section_8_info_leakage.yml
+  tags: [section8, info_leakage]
+
+- name: Section 9 - Denial of Service Mitigations
+  import_tasks: section_9_dos.yml
+  tags: [section9, dos]
+
+- name: Section 10 - Request Limits
+  import_tasks: section_10_limits.yml
+  tags: [section10, limits]
+
+# Sections 11 & 12 (AppArmor/SELinux) are usually system level,
+# but we can ensure SELinux is enforcing if on RHEL/CentOS
+- name: Section 11 - SELinux
+  import_tasks: section_11_selinux.yml
+  when: ansible_os_family == 'RedHat'
+  tags: [section11, selinux]

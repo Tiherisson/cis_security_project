@@ -1,0 +1,52 @@
+---
+# 3.1 Ensure the Apache Web Server Runs As a Non-Root User
+# (Configured in httpd.conf/apache2.conf via User/Group directives)
+- name: 3.1 Ensure Apache runs as non-root user (User directive)
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^User\s+'
+    line: "User {{ cis_apache_service_user }}"
+  notify: Restart Apache
+
+- name: 3.1 Ensure Apache runs as non-root group (Group directive)
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^Group\s+'
+    line: "Group {{ cis_apache_service_group }}"
+  notify: Restart Apache
+
+# 3.2 Ensure the Apache User Account Has an Invalid Shell
+- name: 3.2 Ensure Apache user has invalid shell
+  user:
+    name: "{{ cis_apache_service_user }}"
+    shell: /sbin/nologin
+    system: true
+    state: present
+
+# 3.3 Ensure the Apache User Account Is Locked
+- name: 3.3 Ensure Apache user is locked
+  user:
+    name: "{{ cis_apache_time_user | default(cis_apache_service_user) }}"
+    password_lock: true
+
+# 3.4 Ensure Apache Directories and Files Are Owned By Root
+# 3.5 Ensure the Group Is Set Correctly on Apache Directories and Files
+# 3.6 Ensure Other Write Access on Apache Directories and Files Is Restricted
+- name: 3.4-3.6 Secure Apache Config Directory Permissions
+  file:
+    path: "{{ cis_apache_conf_dir }}"
+    owner: root
+    group: root
+    mode: '0755'
+    recurse: false # Recursive might be dangerous if logs are inside, be careful. 
+
+# 3.7 Ensure the Core Dump Directory Is Secured
+# Check CoreDumpDirectory directive. If present, ensure dir is secure.
+- name: 3.7 Secure Core Dump Directory (Add Directive)
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^CoreDumpDirectory\s+'
+    line: "CoreDumpDirectory /var/log/httpd" # Example safe path
+    state: present
+  when: ansible_os_family == 'RedHat' # Debian doesn't typically enable this by default
+

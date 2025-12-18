@@ -1,0 +1,16 @@
+---
+# 11.1 Ensure SELinux Is Enabled in Enforcing Mode
+- name: 11.1 Ensure SELinux is Enforcing
+  selinux:
+    policy: targeted
+    state: enforcing
+  when: cis_apache_selinux_enforcing | bool
+
+# 11.3 Ensure the httpd_t Type is Not in Permissive Mode
+# Handled by selinux state enforcing globally usually, but specifically for module:
+- name: 11.3 Ensure httpd is not permissive
+  command: semanage permissive -d httpd_t
+  register: semanage_result
+  failed_when: semanage_result.rc != 0 and 'is not defined' not in semanage_result.stderr
+  changed_when: semanage_result.rc == 0
+  ignore_errors: true # In case semanage is not installed

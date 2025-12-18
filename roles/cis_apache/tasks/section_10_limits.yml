@@ -1,0 +1,29 @@
+---
+# 10.1 - 10.4 LimitRequest* Directives
+- name: 10.1 Set LimitRequestLine
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^LimitRequestLine\s+'
+    line: "LimitRequestLine {{ cis_apache_limit_request_line }}"
+  notify: Restart Apache
+
+- name: 10.2 Set LimitRequestFields
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^LimitRequestFields\s+'
+    line: "LimitRequestFields {{ cis_apache_limit_request_fields }}"
+  notify: Restart Apache
+
+- name: 10.3 Set LimitRequestFieldSize
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^LimitRequestFieldSize\s+'
+    line: "LimitRequestFieldSize {{ cis_apache_limit_request_field_size }}"
+  notify: Restart Apache
+
+- name: 10.4 Set LimitRequestBody
+  lineinfile:
+    path: "{{ cis_apache_conf_file }}"
+    regexp: '^LimitRequestBody\s+'
+    line: "LimitRequestBody {{ cis_apache_limit_request_body }}"
+  notify: Restart Apache
